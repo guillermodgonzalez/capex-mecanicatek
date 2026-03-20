@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asistente CAPEX — Mecánica Tek</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#0B3D6E;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:#0a3562;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-dot{width:10px;height:10px;background:#E8A020;border-radius:50%}
+.brand-name{font-size:15px;font-weight:500;color:#fff}
+.brand-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-left:8px}
+.badge{font-size:11px;color:#E8A020;background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.2);border-radius:20px;padding:3px 12px}
+.main{display:flex;flex:1;height:calc(100vh - 49px)}
+.sidebar{width:260px;background:rgba(255,255,255,0.03);border-right:1px solid rgba(255,255,255,0.07);padding:20px 16px;display:flex;flex-direction:column;gap:6px}
+.sidebar-title{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:8px;padding:0 4px}
+.qbtn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;cursor:pointer;text-align:left;width:100%;color:rgba(255,255,255,0.75);font-size:12.5px;font-family:'DM Sans',sans-serif;line-height:1.4;transition:background .15s}
+.qbtn:hover{background:rgba(255,255,255,0.09)}
+.sidebar-note{margin-top:auto;background:rgba(232,160,32,0.07);border:1px solid rgba(232,160,32,0.18);border-radius:8px;padding:12px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5}
+.sidebar-note strong{color:#E8A020;display:block;margin-bottom:4px;font-size:11px;letter-spacing:.04em}
+.chat-area{flex:1;display:flex;flex-direction:column;background:#F5F4F0}
+.messages{flex:1;overflow-y:auto;padding:28px 36px;display:flex;flex-direction:column;gap:16px}
+.messages::-webkit-scrollbar{width:3px}
+.messages::-webkit-scrollbar-thumb{background:#E2E0D8;border-radius:2px}
+.welcome{text-align:center;margin:auto;max-width:420px;padding:20px}
+.welcome h2{font-size:20px;font-weight:500;color:#1A1A18;margin-bottom:8px}
+.welcome p{font-size:13.5px;color:#5F5E5A;line-height:1.65}
+.msg{display:flex;gap:10px;max-width:680px;animation:in .2s ease both}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse;margin-left:auto}
+.avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:2px}
+.msg.bot .avatar{background:#0B3D6E;color:#fff}
+.msg.user .avatar{background:#E8A020;color:#fff}
+.bubble{padding:11px 15px;border-radius:12px;font-size:13.5px;line-height:1.65;max-width:520px}
+.msg.bot .bubble{background:#fff;color:#1A1A18;border:1px solid #E2E0D8;border-top-left-radius:3px}
+.msg.user .bubble{background:#0B3D6E;color:#fff;border-top-right-radius:3px}
+.typing{display:flex;gap:4px;align-items:center;padding:2px 0}
+.typing span{width:6px;height:6px;border-radius:50%;background:#9C9A92;animation:bounce .8s infinite}
+.typing span:nth-child(2){animation-delay:.13s}
+.typing span:nth-child(3){animation-delay:.26s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+.input-bar{padding:14px 36px 18px;background:#F5F4F0;border-top:1px solid #E2E0D8}
+.input-wrap{display:flex;gap:8px;align-items:flex-end;background:#fff;border:1px solid #E2E0D8;border-radius:12px;padding:8px 10px 8px 14px;transition:border-color .15s}
+.input-wrap:focus-within{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,0.07)}
+textarea{flex:1;border:none;outline:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13.5px;color:#1A1A18;resize:none;max-height:100px;min-height:20px;line-height:1.5}
+textarea::placeholder{color:#9C9A92}
+.send{width:34px;height:34px;background:#0B3D6E;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.send:hover{background:#185FA5}
+.send:disabled{background:#E2E0D8;cursor:not-allowed}
+.hint{font-size:11px;color:#9C9A92;margin-top:7px;text-align:center}
+@media(max-width:600px){.sidebar{display:none}.messages{padding:16px}.input-bar{padding:12px 16px 16px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <span class="brand-name">Mecánica Tek</span>
+    <span class="brand-sub">Asistente CAPEX</span>
+  </div>
+  <div class="badge">Uso interno</div>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-title">Preguntas frecuentes</div>
+    <button class="qbtn" onclick="q('¿Qué es un CAPEX?')">¿Qué es un CAPEX?</button>
+    <button class="qbtn" onclick="q('¿Quién puede solicitar un CAPEX?')">¿Quién puede solicitarlo?</button>
+    <button class="qbtn" onclick="q('¿Cuál es el monto mínimo para un CAPEX?')">¿Cuál es el monto mínimo?</button>
+    <button class="qbtn" onclick="q('¿Cuáles son los pasos para solicitar un CAPEX?')">¿Cómo hago una solicitud?</button>
+    <button class="qbtn" onclick="q('¿Con quién debo hablar en finanzas para mi CAPEX?')">¿Con quién hablo en Finanzas?</button>
+    <button class="qbtn" onclick="q('¿Qué tipos de activos aplican para CAPEX?')">¿Qué tipos de activos aplican?</button>
+    <button class="qbtn" onclick="q('¿Cuál es la diferencia entre CAPEX y OPEX?')">¿Diferencia entre CAPEX y OPEX?</button>
+    <div class="sidebar-note">
+      <strong>¿Dudas adicionales?</strong>
+      Contacta al equipo de Finanzas para consultas específicas sobre tu solicitud.
+    </div>
+  </div>
+
+  <div class="chat-area">
+    <div class="messages" id="msgs">
+      <div class="welcome" id="welcome">
+        <h2>Asistente CAPEX</h2>
+        <p>Hola, soy tu asistente para todo lo relacionado con el proceso de CAPEX en Mecánica Tek. Pregúntame lo que necesites.</p>
+      </div>
+    </div>
+    <div class="input-bar">
+      <div class="input-wrap">
+        <textarea id="inp" placeholder="Escribe tu pregunta..." rows="1" onkeydown="onKey(event)" oninput="resize(this)"></textarea>
+        <button class="send" id="btn" onclick="send()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M12 7L2 2.5L4.5 7L2 11.5L12 7Z" fill="white" stroke="white" stroke-width=".8" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="hint">Enter para enviar · Shift+Enter para nueva línea</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY = "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";
+const SYS = `Eres el asistente interno de CAPEX de Mecánica Tek, empresa de mantenimiento de vehículos empresariales en México.
+
+Proceso CAPEX de Mecánica Tek:
+- CAPEX = Capital Expenditure: inversión en activos fijos que benefician a la empresa por más de un año
+- CUALQUIER empleado puede solicitar un CAPEX
+- Monto MÍNIMO: $1,000 USD. Menos de eso es OPEX
+- El solicitante DEBE coordinar con el equipo de Finanzas antes de formalizar
+- Existe un formulario oficial de solicitud
+- Los activos se clasifican por tipo: equipos, herramientas, vehículos, tecnología, infraestructura
+
+Responde en español, de forma clara y concisa. Si no sabes algo del proceso interno, indica que consulten a Finanzas.`;
+
+const hist = [];
+
+async function send() {
+  const inp = document.getElementById('inp');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  document.getElementById('welcome')?.remove();
+  addMsg('user', txt);
+  inp.value = ''; resize(inp);
+  document.getElementById('btn').disabled = true;
+  hist.push({role:'user', content:txt});
+  const t = addTyping();
+  try {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+KEY},
+      body:JSON.stringify({model:'gpt-4o',max_tokens:500,messages:[{role:'system',content:SYS},...hist]})
+    });
+    const d = await r.json();
+    t.remove();
+    if (!r.ok) throw new Error(d.error?.message||'Error');
+    const reply = d.choices[0].message.content;
+    hist.push({role:'assistant',content:reply});
+    addMsg('bot', reply);
+  } catch(e) {
+    t.remove();
+    addMsg('bot','Error al conectar. Verifica que la API key esté configurada.');
+  }
+  document.getElementById('btn').disabled = false;
+}
+
+function addMsg(role, text) {
+  const c = document.getElementById('msgs');
+  const m = document.createElement('div');
+  m.className = 'msg '+role;
+  const av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = role==='bot'?'MT':'Tú';
+  const b = document.createElement('div');
+  b.className = 'bubble';
+  b.innerHTML = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  m.appendChild(av); m.appendChild(b);
+  c.appendChild(m);
+  c.scrollTop = c.scrollHeight;
+}
+
+function addTyping() {
+  const c = document.getElementById('msgs');
+  const m = document.createElement('div');
+  m.className = 'msg bot';
+  m.innerHTML = '<div class="avatar">MT</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
+  c.appendChild(m); c.scrollTop = c.scrollHeight;
+  return m;
+}
+
+function q(t){document.getElementById('inp').value=t;send();}
+function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+</script>
+</body>
+</html>

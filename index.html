@@ -52,6 +52,16 @@ textarea::placeholder{color:#9C9A92}
 .send:disabled{background:#E2E0D8;cursor:not-allowed}
 .hint{font-size:11px;color:#9C9A92;margin-top:7px;text-align:center}
 @media(max-width:600px){.sidebar{display:none}.messages{padding:16px}.input-bar{padding:12px 16px 16px}}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(11,61,110,0.92);display:flex;align-items:center;justify-content:center;z-index:999}
+.modal{background:#fff;border-radius:16px;padding:32px;width:90%;max-width:400px;text-align:center}
+.modal h3{font-size:17px;font-weight:500;color:#1A1A18;margin-bottom:8px}
+.modal p{font-size:13px;color:#5F5E5A;line-height:1.6;margin-bottom:20px}
+.modal input{width:100%;border:1px solid #E2E0D8;border-radius:8px;padding:10px 14px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px}
+.modal input:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,0.08)}
+.modal-btn{width:100%;background:#0B3D6E;color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+.modal-btn:hover{background:#185FA5}
+.modal-note{font-size:11px;color:#9C9A92;margin-top:10px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -103,7 +113,7 @@ textarea::placeholder{color:#9C9A92}
 </div>
 
 <script>
-const KEY = "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";
+const KEY = sessionStorage.getItem('oai_key') || '';
 const SYS = `Eres el asistente interno de CAPEX de Mecánica Tek, empresa de mantenimiento de vehículos empresariales en México.
 
 Proceso CAPEX de Mecánica Tek:
@@ -176,5 +186,29 @@ function q(t){document.getElementById('inp').value=t;send();}
 function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
 function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
 </script>
+
+<div class="modal-overlay" id="key-modal">
+  <div class="modal">
+    <h3>Asistente CAPEX — Mecánica Tek</h3>
+    <p>Para usar el asistente ingresa tu API key de OpenAI. No se guarda en ningún servidor — solo vive en esta sesión.</p>
+    <input type="password" id="key-input" placeholder="sk-proj-..." onkeydown="if(event.key==='Enter')saveKey()">
+    <button class="modal-btn" onclick="saveKey()">Ingresar →</button>
+    <div class="modal-note">La key se borra al cerrar el navegador.</div>
+  </div>
+</div>
+
+<script>
+function saveKey(){
+  const k = document.getElementById('key-input').value.trim();
+  if(!k.startsWith('sk-')){alert('Key inválida, debe empezar con sk-');return;}
+  sessionStorage.setItem('oai_key', k);
+  document.getElementById('key-modal').remove();
+}
+window.addEventListener('load', function(){
+  const k = sessionStorage.getItem('oai_key');
+  if(k) document.getElementById('key-modal').remove();
+});
+</script>
+
 </body>
 </html>
